@@ -1,18 +1,10 @@
-import gleam/dynamic
-import gleam/json
-
 pub type ArrayBuffer {
   ArrayBuffer
 }
 
-/// Type to represent a JSON object that should correspond to a gleam type
-pub type JSObject(gleam_type) {
-  JSObject(json.Json)
-}
-
-/// Type to represent a dynamic object that should correspond to a gleam type
-pub type DynamicObject(gleam_type) {
-  DynamicObject(dynamic.Dynamic)
+/// Type to represent an unknown/generic type that should correspond to a gleam type
+pub type Unparsed(actual_type, gleam_type) {
+  Unparsed(data: actual_type)
 }
 
 /// Wait forever

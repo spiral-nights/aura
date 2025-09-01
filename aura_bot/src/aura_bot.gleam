@@ -1,5 +1,5 @@
 import aura_bot/config
-import aura_bot/javascript.{DynamicObject, JSObject}
+import aura_bot/javascript.{Unparsed}
 import aura_bot/nostr
 import aura_bot/nostr/key
 import aura_bot/nostr/messaging
@@ -19,22 +19,23 @@ pub fn main() -> Nil {
   let filter =
     relay.Filter(kinds: [1059], recipients: [bot_npub])
     |> relay.filter_to_json()
-  let JSObject(filter_json) = filter
+  let Unparsed(filter_json) = filter
 
   relay.listen_to_relays(
     array.from_list(config.relays),
     filter_json,
     fn(gift_wrapped_msg) {
-      let seal_dynamic =
-        messaging.nip44_decrypt(gift_wrapped_msg, bot_private_key)
-      let DynamicObject(seal) = seal_dynamic
-      let rumor_dynamic = messaging.nip44_decrypt(seal, bot_private_key)
-      let rumor = nostr.decode(rumor_dynamic)
+      let seal = messaging.nip44_decrypt(gift_wrapped_msg, bot_private_key)
+      let decrypted_rumor = messaging.nip44_decrypt(seal.data, bot_private_key)
+      let rumor = nostr.decode(decrypted_rumor)
       case rumor {
-        nostr.Event(_pubkey, content) -> {
-          echo content as "Event content:"
+        Ok(event) -> {
+          echo event.content as "Event content:"
         }
-        nostr.Invalid -> echo "Invalid content"
+        Error(decode_errors) -> {
+          echo decode_errors as "Invalid message content."
+          "Invalid message content"
+        }
       }
 
       echo Nil

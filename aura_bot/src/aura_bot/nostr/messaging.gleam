@@ -1,4 +1,4 @@
-import aura_bot/javascript.{type ArrayBuffer, type DynamicObject}
+import aura_bot/javascript.{type ArrayBuffer, type Unparsed, Unparsed}
 import aura_bot/nostr
 import gleam/dynamic
 import gleam/javascript/array
@@ -30,9 +30,9 @@ pub fn send_private_message(
 pub fn nip44_decrypt(
   data: dynamic.Dynamic,
   private_key: ArrayBuffer,
-) -> DynamicObject(nostr.Event) {
+) -> Unparsed(dynamic.Dynamic, nostr.Event) {
   let event_data = nip44_decrypt_ffi(data, private_key)
-  javascript.DynamicObject(event_data)
+  Unparsed(event_data)
 }
 
 @external(javascript, "../../externals/nostr/messaging_ffi.mjs", "nip44Decrypt")

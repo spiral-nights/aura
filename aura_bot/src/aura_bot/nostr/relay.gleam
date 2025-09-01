@@ -1,4 +1,4 @@
-import aura_bot/javascript.{type JSObject}
+import aura_bot/javascript.{type Unparsed, Unparsed}
 import gleam/dynamic
 import gleam/javascript/array
 import gleam/json
@@ -14,14 +14,15 @@ pub type Filter {
   Filter(kinds: List(Int), recipients: List(HexKey))
 }
 
-pub fn filter_to_json(filter: Filter) -> JSObject(Filter) {
+/// Convert the given filter to a json object representing the filter
+pub fn filter_to_json(filter: Filter) -> Unparsed(json.Json, Filter) {
   let obj =
     json.object([
       #("kinds", json.array(filter.kinds, of: json.int)),
       #("#p", json.array(filter.recipients, of: json.string)),
     ])
 
-  javascript.JSObject(obj)
+  Unparsed(obj)
 }
 
 /// Connects to a list of relays and listens for events.
