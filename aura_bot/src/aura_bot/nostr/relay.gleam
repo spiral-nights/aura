@@ -1,11 +1,7 @@
-import aura_bot/javascript
+import aura_bot/javascript.{type JSObject}
 import gleam/dynamic
 import gleam/javascript/array
 import gleam/json
-
-/// Alias for nostr event; can eventually be a typed record
-pub type Event =
-  dynamic.Dynamic
 
 /// Alias for the hex version of a key
 pub type HexKey =
@@ -18,14 +14,14 @@ pub type Filter {
   Filter(kinds: List(Int), recipients: List(HexKey))
 }
 
-pub fn filter_to_object(filter: Filter) -> javascript.Object(Filter) {
+pub fn filter_to_json(filter: Filter) -> JSObject(Filter) {
   let obj =
     json.object([
       #("kinds", json.array(filter.kinds, of: json.int)),
       #("#p", json.array(filter.recipients, of: json.string)),
     ])
 
-  javascript.to_object(filter, obj)
+  javascript.JSObject(obj)
 }
 
 /// Connects to a list of relays and listens for events.
@@ -38,6 +34,6 @@ pub fn filter_to_object(filter: Filter) -> javascript.Object(Filter) {
 @external(javascript, "../../externals/nostr/relay_ffi.mjs", "listenToRelays")
 pub fn listen_to_relays(
   relays: array.Array(String),
-  filter: javascript.Object(Filter),
-  on_event: fn(Event) -> Nil,
+  filter: json.Json,
+  on_event: fn(dynamic.Dynamic) -> Nil,
 ) -> fn() -> Nil

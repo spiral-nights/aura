@@ -8,7 +8,3 @@ export function waitForever() {
 
   return null;
 }
-
-export function makeJsInterop(gleamObj, jsObject) {
-  return jsObject;
-}

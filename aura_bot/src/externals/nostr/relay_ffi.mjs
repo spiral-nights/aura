@@ -15,6 +15,8 @@ useWebSocketImplementation(WebSocket);
 export function listenToRelays(relays, filter, onEventCallback) {
   const pool = new SimplePool();
 
+  console.log("filter is %o", filter);
+
   const sub = pool.subscribe(relays, filter, {
     onevent(event) {
       onEventCallback(event);

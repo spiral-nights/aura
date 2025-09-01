@@ -1,11 +1,8 @@
-import aura_bot/javascript.{type ArrayBuffer}
+import aura_bot/javascript.{type ArrayBuffer, type DynamicObject}
+import aura_bot/nostr
 import gleam/dynamic
 import gleam/javascript/array
 import gleam/javascript/promise
-
-/// A type representing a Nostr event.
-pub type NostrEvent =
-  dynamic.Dynamic
 
 /// Sends a private message using NIP-59.
 /// This function encrypts the message, wraps it in a gift wrap event, and sends it to the specified relays.
@@ -30,8 +27,16 @@ pub fn send_private_message(
 /// - `data`: The Nostr event to decrypt.
 /// - `private_key`: The private key to use for decryption.
 ///
-@external(javascript, "../../externals/nostr/messaging_ffi.mjs", "nip44Decrypt")
 pub fn nip44_decrypt(
-  data: NostrEvent,
+  data: dynamic.Dynamic,
+  private_key: ArrayBuffer,
+) -> DynamicObject(nostr.Event) {
+  let event_data = nip44_decrypt_ffi(data, private_key)
+  javascript.DynamicObject(event_data)
+}
+
+@external(javascript, "../../externals/nostr/messaging_ffi.mjs", "nip44Decrypt")
+fn nip44_decrypt_ffi(
+  data: dynamic.Dynamic,
   private_key: ArrayBuffer,
 ) -> dynamic.Dynamic

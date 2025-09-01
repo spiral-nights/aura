@@ -17,3 +17,11 @@ export function bech32ToUint8Array(bech32) {
 export function derivePublicKey(privateKey) {
   return getPublicKey(privateKey);
 }
+
+/**
+ * @param {string} npub
+ * @returns {string} hex public key
+ */
+export function npubToHex(npub) {
+  return nip19.decode(npub);
+}
