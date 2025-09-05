@@ -23,5 +23,5 @@ export function derivePublicKey(privateKey) {
  * @returns {string} hex public key
  */
 export function npubToHex(npub) {
-  return nip19.decode(npub);
+  return nip19.decode(npub)["data"];
 }
