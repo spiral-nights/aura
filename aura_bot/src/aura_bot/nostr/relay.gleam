@@ -32,7 +32,7 @@ pub fn filter_to_json(filter: Filter) -> Unparsed(json.Json, Filter) {
 /// - `filter`: A filter to control the returned content.
 /// - `on_event`: A callback function to handle received events.
 ///
-@external(javascript, "../../externals/nostr/relay_ffi.mjs", "listenToRelays")
+@external(javascript, "./relay_ffi.mjs", "listenToRelays")
 pub fn listen_to_relays(
   relays: array.Array(String),
   filter: json.Json,

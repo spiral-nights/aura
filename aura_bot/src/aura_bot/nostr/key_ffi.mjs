@@ -19,9 +19,9 @@ export function derivePublicKey(privateKey) {
 }
 
 /**
- * @param {string} npub
- * @returns {string} hex public key
+ * @param {string} bech32 the bech32 string
+ * @returns {string} hex the hex version key
  */
-export function npubToHex(npub) {
-  return nip19.decode(npub);
+export function bech32ToHex(bech32) {
+  return nip19.decode(bech32)["data"];
 }

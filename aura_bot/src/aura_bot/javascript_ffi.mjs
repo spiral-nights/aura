@@ -8,3 +8,7 @@ export function waitForever() {
 
   return null;
 }
+
+export function currentTimeMS() {
+  return Math.round(new Date().getTime() / 1000);
+}

@@ -1,5 +1,6 @@
-import aura_bot/javascript.{type ArrayBuffer, type Unparsed, Unparsed}
+import aura_bot/javascript.{type Unparsed, Unparsed}
 import aura_bot/nostr
+import aura_bot/nostr/key.{type BinaryKey, type Private}
 import gleam/dynamic
 import gleam/javascript/array
 import gleam/javascript/promise
@@ -13,9 +14,9 @@ import gleam/javascript/promise
 /// - `message`: The message to send.
 /// - `relays`: A list of relay URLs to publish the message to.
 ///
-@external(javascript, "../../externals/nostr/messaging_ffi.mjs", "sendPrivateMessage")
+@external(javascript, "./messaging_ffi.mjs", "sendPrivateMessage")
 pub fn send_private_message(
-  sender_sk: ArrayBuffer,
+  sender_sk: BinaryKey(Private),
   recipient_pk: String,
   message: String,
   relays: array.Array(String),
@@ -29,14 +30,14 @@ pub fn send_private_message(
 ///
 pub fn nip44_decrypt(
   data: dynamic.Dynamic,
-  private_key: ArrayBuffer,
+  private_key: BinaryKey(Private),
 ) -> Unparsed(dynamic.Dynamic, nostr.Event) {
   let event_data = nip44_decrypt_ffi(data, private_key)
   Unparsed(event_data)
 }
 
-@external(javascript, "../../externals/nostr/messaging_ffi.mjs", "nip44Decrypt")
+@external(javascript, "./messaging_ffi.mjs", "nip44Decrypt")
 fn nip44_decrypt_ffi(
   data: dynamic.Dynamic,
-  private_key: ArrayBuffer,
+  private_key: BinaryKey(Private),
 ) -> dynamic.Dynamic

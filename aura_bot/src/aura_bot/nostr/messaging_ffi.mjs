@@ -5,8 +5,7 @@ import {
   finalizeEvent,
   generateSecretKey,
 } from "nostr-tools";
-import { SimplePool } from "nostr-tools/pool";
-import { useWebSocketImplementation } from "nostr-tools/pool";
+import { SimplePool, useWebSocketImplementation } from "nostr-tools/pool";
 import WebSocket from "ws";
 
 useWebSocketImplementation(WebSocket);
@@ -21,7 +20,7 @@ const nip44ConversationKey = (privateKey, publicKey) =>
 const nip44Encrypt = (data, privateKey, publicKey) =>
   nip44.v2.encrypt(
     JSON.stringify(data),
-    nip44ConversationKey(privateKey, publicKey)
+    nip44ConversationKey(privateKey, publicKey),
   );
 
 /**
@@ -33,8 +32,8 @@ export const nip44Decrypt = (data, privateKey) =>
   JSON.parse(
     nip44.v2.decrypt(
       data.content,
-      nip44ConversationKey(privateKey, data.pubkey)
-    )
+      nip44ConversationKey(privateKey, data.pubkey),
+    ),
   );
 
 const createRumor = (event, privateKey) => {
@@ -59,7 +58,7 @@ const createSeal = (rumor, privateKey, recipientPublicKey) => {
       created_at: randomNow(),
       tags: [],
     },
-    privateKey
+    privateKey,
   );
 };
 
@@ -73,7 +72,7 @@ const createWrap = (event, recipientPublicKey) => {
       created_at: randomNow(),
       tags: [["p", recipientPublicKey]],
     },
-    randomKey
+    randomKey,
   );
 };
 
@@ -81,29 +80,30 @@ const createWrap = (event, recipientPublicKey) => {
  * Sends a private message using NIP-59.
  *
  * @param {Uint8Array} senderSk - The sender's private key.
- * @param {string} recipientPk - The recipient's public key.
+ * @param {string} recipientPublicKey - The recipient's hex public key.
  * @param {string} message - The message to send.
  * @param {string[]} relays - The relays to publish the message to.
  * @returns {Promise<void>}
  */
 export async function sendPrivateMessage(
   senderSk,
-  recipientPk,
+  recipientPublicKey,
   message,
-  relays
+  relays,
 ) {
   const rumor = createRumor(
     {
-      kind: 1,
+      kind: 14,
       content: message,
+      tags: [["p", recipientPublicKey]],
     },
-    senderSk
+    senderSk,
   );
 
-  const seal = createSeal(rumor, senderSk, recipientPk);
-  const wrap = createWrap(seal, recipientPk);
+  const seal = createSeal(rumor, senderSk, recipientPublicKey);
+  const giftWrap = createWrap(seal, recipientPublicKey);
 
   const pool = new SimplePool();
-  await Promise.any(pool.publish(relays, wrap));
+  await Promise.any(pool.publish(relays, giftWrap));
   pool.close(relays);
 }
