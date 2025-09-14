@@ -1,4 +1,4 @@
-import aura_bot/agent
+import aura_bot/ai
 import aura_bot/config
 import aura_bot/javascript.{Unparsed}
 import aura_bot/nostr
@@ -43,7 +43,7 @@ fn handle_message(gift_wrapped_msg, bot_private_key: BinaryKey(Private)) {
   let rumor = nostr.decode(decrypted_rumor)
   case rumor {
     Ok(event) -> {
-      agent.handle_message(event)
+      ai.handle_message(event)
     }
     Error(decode_errors) -> {
       echo decode_errors as "Invalid message content:"

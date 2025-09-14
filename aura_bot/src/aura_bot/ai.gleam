@@ -1,5 +1,4 @@
-import aura_bot/agent/types.{type Agent, Gemini}
-import aura_bot/config
+import aura_bot/ai/agent.{type Agent}
 import aura_bot/javascript
 import aura_bot/nostr
 import aura_bot/nostr/key
@@ -26,9 +25,9 @@ pub fn handle_message(event: nostr.Event) -> Nil {
   let thread_id = event.pubkey
   let agent =
     get_agent_for_thread(thread_id, app_state)
-    |> add_message(event)
+    |> agent.add_message(event)
 
-  let should_respond = event.created_at > agent.created_at
+  let should_respond = event.created_at > agent.created_at(agent)
   case should_respond {
     False -> Nil
     True -> respond_to_message(event, agent, app_state)
@@ -70,26 +69,6 @@ fn respond_to_message(
   Nil
 }
 
-/// Create a new AI agent
-/// ## Parameters
-/// - `config`: The application config
-fn new(config: config.AppConfig) -> Agent {
-  // in the future, we may have options for other agent types
-  Gemini(
-    api_key: config.gemini_api_key,
-    messages: [],
-    created_at: javascript.current_time_ms(),
-  )
-}
-
-/// Add a new message to the agent's message list
-/// ## Parameters
-/// - `agent`: The agent
-/// - `message`: The message to add
-fn add_message(agent: Agent, message: nostr.Event) -> Agent {
-  Gemini(..agent, messages: [message, ..agent.messages])
-}
-
 /// Get the agent for the given chat thread
 /// ## Parameters
 /// - `thread_id`: The thread id
@@ -102,7 +81,11 @@ fn get_agent_for_thread(thread_id: String, app_state: state.State) -> Agent {
   case agent_for_thread {
     Ok(agent) -> agent
     Error(_) -> {
-      new(app_state.config)
+      agent.new(
+        api_key: app_state.config.gemini_api_key,
+        messages: [],
+        created_at: javascript.current_time_ms(),
+      )
     }
   }
 }
@@ -116,3 +99,6 @@ fn ignore_event(event: nostr.Event, app_state: state.State) -> Bool {
   |> set.contains(event.pubkey)
   |> bool.negate
 }
+// todo:
+// 1. I want to have agent be opaque, and I want to have it be alone in its own module
+// 2. I want to have other files be able to manipulate the agent internals
