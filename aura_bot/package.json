@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@google/genai": "^1.19.0",
     "@noble/hashes": "^2.0.0",
     "nostr-tools": "^2.16.2"
   }
