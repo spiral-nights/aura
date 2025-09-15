@@ -5,11 +5,11 @@ pub type GenerateContentParameters {
   GenerateContentParameters(
     config: Option(GenerateContentConfig),
     contents: ContentListUnion,
-    model: String,
+    model: Model,
   )
 }
 
-fn generate_content_parameters_to_json(
+pub fn generate_content_parameters_to_json(
   generate_content_parameters: GenerateContentParameters,
 ) -> json.Json {
   let GenerateContentParameters(config:, contents:, model:) =
@@ -20,7 +20,7 @@ fn generate_content_parameters_to_json(
       option.Some(value) -> generate_content_config_to_json(value)
     }),
     #("contents", content_list_union_to_json(contents)),
-    #("model", json.string(model)),
+    #("model", model_to_json(model)),
   ])
 }
 
@@ -91,6 +91,9 @@ fn model_to_json(model: Model) -> json.Json {
 }
 
 pub type PartUnion {
+  /// A part; to be used for function calling
+  /// ## Parameters
+  /// - `part`: The part
   PuPart(Part)
   PuString(String)
 }
@@ -114,6 +117,8 @@ fn part_to_json(part: Part) -> json.Json {
 }
 
 pub type GenerateContentConfig {
+  /// ## Parameters
+  /// - `system_instruction`: The system instruction
   GenerateContentConfig(system_instruction: Option(ContentUnion))
 }
 
