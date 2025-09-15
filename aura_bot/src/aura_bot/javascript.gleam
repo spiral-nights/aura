@@ -7,5 +7,6 @@ pub type Unparsed(actual_type, gleam_type) {
 @external(javascript, "./javascript_ffi.mjs", "waitForever")
 pub fn wait_forever() -> Nil
 
-@external(javascript, "./javascript_ffi.mjs", "currentTimeMS")
-pub fn current_time_ms() -> Int
+/// Get the current time in seconds since the epoch
+@external(javascript, "./javascript_ffi.mjs", "currentTimeSeconds")
+pub fn current_time_s() -> Int

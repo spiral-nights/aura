@@ -25,7 +25,7 @@ pub fn handle_message(event: nostr.Event) -> Nil {
   let thread_id = event.pubkey
   let agent =
     get_agent_for_thread(thread_id, app_state)
-    |> agent.add_message(event)
+    |> agent.add_to_context(event)
 
   let should_respond = event.created_at > agent.created_at(agent)
   case should_respond {
@@ -77,14 +77,18 @@ fn respond_to_message(
 /// - The agent for the given thread
 fn get_agent_for_thread(thread_id: String, app_state: state.State) -> Agent {
   let agent_for_thread = dict.get(app_state.agents_by_thread, thread_id)
-  // TODO: Make this save the app state if creating a new agent
+
+  let bot_public_key =
+    key.derive_public_key_from_nsec(app_state.config.bot_nsec)
+
   case agent_for_thread {
     Ok(agent) -> agent
     Error(_) -> {
       agent.new(
+        public_key: bot_public_key,
         api_key: app_state.config.gemini_api_key,
         messages: [],
-        created_at: javascript.current_time_ms(),
+        created_at: javascript.current_time_s(),
       )
     }
   }
@@ -99,6 +103,3 @@ fn ignore_event(event: nostr.Event, app_state: state.State) -> Bool {
   |> set.contains(event.pubkey)
   |> bool.negate
 }
-// todo:
-// 1. I want to have agent be opaque, and I want to have it be alone in its own module
-// 2. I want to have other files be able to manipulate the agent internals

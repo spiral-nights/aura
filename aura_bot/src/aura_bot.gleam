@@ -10,6 +10,7 @@ import gleam/dict
 import gleam/io
 import gleam/javascript/array
 
+/// The main function of the application
 pub fn main() -> Nil {
   io.println("Hello from aura_bot!")
   // read env variables for bot private key, bot public key, and allowed users
@@ -30,9 +31,6 @@ pub fn main() -> Nil {
     filter_json,
     fn(gift_wrapped_msg) { handle_message(gift_wrapped_msg, bot_private_key) },
   )
-
-  // TODO:
-  // send hard coded response to new messages
 
   javascript.wait_forever()
 }

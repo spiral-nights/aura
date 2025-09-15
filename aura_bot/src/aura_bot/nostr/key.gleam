@@ -21,6 +21,11 @@ pub fn npub_to_hex(npub: String) -> HexKey(Public) {
   HexKey(value: bech32_to_hex(npub))
 }
 
+/// Convert an nsec string to a hex key
+/// ## Parameters
+/// - `nsec`: The nsec string
+/// ## Returns
+/// - The hex private key
 @external(javascript, "./key_ffi.mjs", "bech32ToHex")
 pub fn nsec_to_hex(nsec: String) -> HexKey(Private) {
   HexKey(value: bech32_to_hex(nsec))
