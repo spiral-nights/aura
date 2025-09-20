@@ -2,6 +2,7 @@ import envoy
 import gleam/list
 import gleam/string
 
+/// The application configuration
 pub type AppConfig {
   AppConfig(
     gemini_api_key: String,
@@ -12,7 +13,7 @@ pub type AppConfig {
   )
 }
 
-/// Read the application config from
+/// Read the application config from environment variables
 pub fn read_config_from_env() -> AppConfig {
   let assert Ok(gemini_api_key) = envoy.get("GEMINI_API_KEY")
   let assert Ok(bot_nsec) = envoy.get("BOT_NSEC")

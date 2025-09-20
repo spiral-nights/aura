@@ -9,6 +9,6 @@ export function waitForever() {
   return null;
 }
 
-export function currentTimeMS() {
+export function currentTimeSeconds() {
   return Math.round(new Date().getTime() / 1000);
 }

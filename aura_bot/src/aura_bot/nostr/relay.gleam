@@ -7,9 +7,7 @@ import gleam/json
 pub type HexKey =
   String
 
-/// This is a type representing a Nostr event.
-/// For now we use Dynamic, but it could be a typed record later.
-/// This is a type representing a Nostr filter.
+/// A type representing a Nostr filter.
 pub type Filter {
   Filter(kinds: List(Int), recipients: List(HexKey))
 }

@@ -1,12 +1,9 @@
-import aura_bot/agent/types
+import aura_bot/ai/agent.{type Agent}
 import aura_bot/config
 import gleam/dict
 
 pub type State {
-  State(
-    config: config.AppConfig,
-    agents_by_thread: dict.Dict(String, types.Agent),
-  )
+  State(config: config.AppConfig, agents_by_thread: dict.Dict(String, Agent))
 }
 
 /// Update the state of the thread with the agent
@@ -21,7 +18,7 @@ pub type State {
 pub fn assign_agent_to_thread(
   state: State,
   thread_id: String,
-  agent: types.Agent,
+  agent: Agent,
 ) -> State {
   state.agents_by_thread
   |> dict.insert(for: thread_id, insert: agent)
@@ -31,5 +28,8 @@ pub fn assign_agent_to_thread(
 @external(javascript, "./state_ffi.mjs", "saveState")
 pub fn save_state(state: State) -> State
 
+/// Load the application state
+/// ## Returns
+/// - The loaded application state
 @external(javascript, "./state_ffi.mjs", "loadState")
 pub fn load_state() -> State

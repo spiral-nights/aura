@@ -1,4 +1,4 @@
-import aura_bot/agent
+import aura_bot/ai
 import aura_bot/config
 import aura_bot/javascript.{Unparsed}
 import aura_bot/nostr
@@ -10,6 +10,7 @@ import gleam/dict
 import gleam/io
 import gleam/javascript/array
 
+/// The main function of the application
 pub fn main() -> Nil {
   io.println("Hello from aura_bot!")
   // read env variables for bot private key, bot public key, and allowed users
@@ -31,9 +32,6 @@ pub fn main() -> Nil {
     fn(gift_wrapped_msg) { handle_message(gift_wrapped_msg, bot_private_key) },
   )
 
-  // TODO:
-  // send hard coded response to new messages
-
   javascript.wait_forever()
 }
 
@@ -43,7 +41,7 @@ fn handle_message(gift_wrapped_msg, bot_private_key: BinaryKey(Private)) {
   let rumor = nostr.decode(decrypted_rumor)
   case rumor {
     Ok(event) -> {
-      agent.handle_message(event)
+      ai.handle_message(event)
     }
     Error(decode_errors) -> {
       echo decode_errors as "Invalid message content:"

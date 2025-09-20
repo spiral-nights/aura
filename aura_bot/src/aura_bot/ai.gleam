@@ -1,5 +1,4 @@
-import aura_bot/agent/types.{type Agent, Gemini}
-import aura_bot/config
+import aura_bot/ai/agent.{type Agent}
 import aura_bot/javascript
 import aura_bot/nostr
 import aura_bot/nostr/key
@@ -26,9 +25,12 @@ pub fn handle_message(event: nostr.Event) -> Nil {
   let thread_id = event.pubkey
   let agent =
     get_agent_for_thread(thread_id, app_state)
-    |> add_message(event)
+    |> agent.add_to_context(event)
 
-  let should_respond = event.created_at > agent.created_at
+  let should_respond = event.created_at > agent.created_at(agent)
+  // let should_respond =
+  //   event.id
+  //   == "c35080c3fe980ba3e6a4ae3b55352b973ae8b122002a8f0711765a7b373002b5"
   case should_respond {
     False -> Nil
     True -> respond_to_message(event, agent, app_state)
@@ -44,7 +46,7 @@ pub fn handle_message(event: nostr.Event) -> Nil {
 
 fn respond_to_message(
   event: nostr.Event,
-  _agent: Agent,
+  agent: Agent,
   state: state.State,
 ) -> Nil {
   let binary_private_key = key.nsec_to_binary_key(state.config.bot_nsec)
@@ -54,7 +56,8 @@ fn respond_to_message(
 
   case state.config.publish_messages {
     False -> {
-      echo response
+      echo "Publishing response:" as response
+      agent.send_message("What day is today?", agent)
       promise.resolve(Nil)
     }
     True -> {
@@ -70,26 +73,6 @@ fn respond_to_message(
   Nil
 }
 
-/// Create a new AI agent
-/// ## Parameters
-/// - `config`: The application config
-fn new(config: config.AppConfig) -> Agent {
-  // in the future, we may have options for other agent types
-  Gemini(
-    api_key: config.gemini_api_key,
-    messages: [],
-    created_at: javascript.current_time_ms(),
-  )
-}
-
-/// Add a new message to the agent's message list
-/// ## Parameters
-/// - `agent`: The agent
-/// - `message`: The message to add
-fn add_message(agent: Agent, message: nostr.Event) -> Agent {
-  Gemini(..agent, messages: [message, ..agent.messages])
-}
-
 /// Get the agent for the given chat thread
 /// ## Parameters
 /// - `thread_id`: The thread id
@@ -98,11 +81,19 @@ fn add_message(agent: Agent, message: nostr.Event) -> Agent {
 /// - The agent for the given thread
 fn get_agent_for_thread(thread_id: String, app_state: state.State) -> Agent {
   let agent_for_thread = dict.get(app_state.agents_by_thread, thread_id)
-  // TODO: Make this save the app state if creating a new agent
+
+  let bot_public_key =
+    key.derive_public_key_from_nsec(app_state.config.bot_nsec)
+
   case agent_for_thread {
     Ok(agent) -> agent
     Error(_) -> {
-      new(app_state.config)
+      agent.new(
+        public_key: bot_public_key,
+        api_key: app_state.config.gemini_api_key,
+        messages: [],
+        created_at: javascript.current_time_s(),
+      )
     }
   }
 }
