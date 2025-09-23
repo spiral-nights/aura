@@ -9,6 +9,13 @@ pub type GenerateContentParameters {
   )
 }
 
+/// Convert GenerateContentParameters into a JSON value suitable for the JS API.
+///
+/// ## Parameters
+/// - `generate_content_parameters`: Parameters describing the request to generate content.
+///
+/// ## Returns
+/// - A gleam json.Json representation of the parameters.
 pub fn generate_content_parameters_to_json(
   generate_content_parameters: GenerateContentParameters,
 ) -> json.Json {
@@ -24,6 +31,7 @@ pub fn generate_content_parameters_to_json(
   ])
 }
 
+/// https://googleapis.github.io/js-genai/release_docs/types/types.ContentListUnion.html
 pub type ContentListUnion {
   CluContents(List(Content))
   CluParts(List(PartUnion))
@@ -36,6 +44,7 @@ fn content_list_union_to_json(content: ContentListUnion) -> json.Json {
   }
 }
 
+/// https://googleapis.github.io/js-genai/release_docs/types/types.ContentUnion.html
 pub type ContentUnion {
   CuContent(Content)
   CuPartUnion(List(PartUnion))
@@ -48,6 +57,7 @@ fn content_union_to_json(value: ContentUnion) -> json.Json {
   }
 }
 
+/// https://googleapis.github.io/js-genai/release_docs/interfaces/types.Content.html
 pub type Content {
   Content(parts: Option(List(Part)), role: Option(Role))
 }
@@ -91,11 +101,12 @@ fn model_to_json(model: Model) -> json.Json {
 }
 
 pub type PartUnion {
-  /// A part; to be used for function calling
-  /// ## Parameters
-  /// - `part`: The part
   PuPart(Part)
   PuString(String)
+}
+
+pub fn part_union_string(value: String) -> PartUnion {
+  PuString(value)
 }
 
 fn part_union_to_json(part_union: PartUnion) -> json.Json {
@@ -116,10 +127,24 @@ fn part_to_json(part: Part) -> json.Json {
   ])
 }
 
-pub type GenerateContentConfig {
+/// https://googleapis.github.io/js-genai/release_docs/interfaces/types.GenerateContentConfig.html
+pub opaque type GenerateContentConfig {
   /// ## Parameters
   /// - `system_instruction`: The system instruction
   GenerateContentConfig(system_instruction: Option(ContentUnion))
+}
+
+/// Generate the configuration for the Gemini AI model
+pub fn generate_content_config(
+  system_instruction: String,
+) -> GenerateContentConfig {
+  GenerateContentConfig(
+    option.Some(
+      CuPartUnion([
+        PuString(system_instruction),
+      ]),
+    ),
+  )
 }
 
 fn generate_content_config_to_json(

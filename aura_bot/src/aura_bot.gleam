@@ -1,6 +1,6 @@
 import aura_bot/ai
 import aura_bot/config
-import aura_bot/javascript.{Unparsed}
+import aura_bot/javascript
 import aura_bot/nostr
 import aura_bot/nostr/key.{type BinaryKey, type Private}
 import aura_bot/nostr/messaging
@@ -20,10 +20,10 @@ pub fn main() -> Nil {
   // connect to relays
   let bot_private_key = key.nsec_to_binary_key(config.bot_nsec)
   let bot_npub = key.derive_public_key_from_nsec(config.bot_nsec)
-  let filter =
-    relay.Filter(kinds: [1059], recipients: [bot_npub.value])
-    |> relay.filter_to_json()
-  let Unparsed(filter_json) = filter
+  let filter = relay.Filter(kinds: [1059], recipients: [bot_npub.value])
+  let unparsed_filter = relay.filter_to_json(filter)
+  let filter_json = unparsed_filter.data
+
   state.save_state(state.State(config:, agents_by_thread: dict.new()))
 
   relay.listen_to_relays(

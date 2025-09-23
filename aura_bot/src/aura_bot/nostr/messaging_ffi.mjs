@@ -79,16 +79,16 @@ const createWrap = (event, recipientPublicKey) => {
 /**
  * Sends a private message using NIP-59.
  *
- * @param {Uint8Array} senderSk - The sender's private key.
- * @param {string} recipientPublicKey - The recipient's hex public key.
  * @param {string} message - The message to send.
+ * @param {Uint8Array} senderPrivateKey - The sender's private key.
+ * @param {string} recipientPublicKey - The recipient's hex public key.
  * @param {string[]} relays - The relays to publish the message to.
  * @returns {Promise<void>}
  */
 export async function sendPrivateMessage(
-  senderSk,
-  recipientPublicKey,
   message,
+  senderPrivateKey,
+  recipientPublicKey,
   relays,
 ) {
   const rumor = createRumor(
@@ -97,10 +97,10 @@ export async function sendPrivateMessage(
       content: message,
       tags: [["p", recipientPublicKey]],
     },
-    senderSk,
+    senderPrivateKey,
   );
 
-  const seal = createSeal(rumor, senderSk, recipientPublicKey);
+  const seal = createSeal(rumor, senderPrivateKey, recipientPublicKey);
   const giftWrap = createWrap(seal, recipientPublicKey);
 
   const pool = new SimplePool();

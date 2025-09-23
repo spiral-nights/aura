@@ -6,7 +6,6 @@ import aura_bot/nostr/messaging
 import aura_bot/state
 import gleam/bool
 import gleam/dict
-import gleam/int
 import gleam/javascript/array
 import gleam/javascript/promise
 import gleam/set
@@ -28,6 +27,7 @@ pub fn handle_message(event: nostr.Event) -> Nil {
     |> agent.add_to_context(event)
 
   let should_respond = event.created_at > agent.created_at(agent)
+  // TODO: Figure out better way to test AI behavior
   // let should_respond =
   //   event.id
   //   == "c35080c3fe980ba3e6a4ae3b55352b973ae8b122002a8f0711765a7b373002b5"
@@ -35,7 +35,6 @@ pub fn handle_message(event: nostr.Event) -> Nil {
     False -> Nil
     True -> respond_to_message(event, agent, app_state)
   }
-  // TODO: Integrate ai message
   // TODO: The bot needs to be aware of its own messages in addition to messages received from others
 
   // Assign the agent to the thread in application state and save it
@@ -50,26 +49,30 @@ fn respond_to_message(
   state: state.State,
 ) -> Nil {
   let binary_private_key = key.nsec_to_binary_key(state.config.bot_nsec)
-  let response =
-    "Hello, friend! Responding to message with timestamp: "
-    <> int.to_string(event.created_at)
 
-  case state.config.publish_messages {
-    False -> {
-      echo "Publishing response:" as response
-      agent.send_message("What day is today?", agent)
-      promise.resolve(Nil)
+  let agent_promise =
+    agent.send_message("How tall is Mount Fuji? Answer in Japanese", agent)
+
+  promise.map(agent_promise, fn(response) {
+    case state.config.publish_messages {
+      False -> {
+        // log the response instead of publishing
+        echo response as "Agent Response:"
+        Nil
+      }
+      True -> {
+        // publish the response to the network
+        messaging.send_private_message(
+          response,
+          binary_private_key,
+          event.pubkey,
+          array.from_list(state.config.relays),
+        )
+        Nil
+      }
     }
-    True -> {
-      messaging.send_private_message(
-        binary_private_key,
-        event.pubkey,
-        "Hello, friend! Responding to message with timestamp: "
-          <> int.to_string(event.created_at),
-        array.from_list(state.config.relays),
-      )
-    }
-  }
+  })
+
   Nil
 }
 

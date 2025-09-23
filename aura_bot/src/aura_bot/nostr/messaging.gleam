@@ -9,16 +9,18 @@ import gleam/javascript/promise
 /// This function encrypts the message, wraps it in a gift wrap event, and sends it to the specified relays.
 ///
 /// ## Parameters
-/// - `sender_sk`: The sender's private key as an ArrayBuffer.
-/// - `recipient_pk`: The recipient's public key as a hex string.
 /// - `message`: The message to send.
+/// - `sender_private_key`: The sender's private key as an ArrayBuffer.
+/// - `recipient_public_key`: The recipient's public key as a hex string.
 /// - `relays`: A list of relay URLs to publish the message to.
 ///
+// TODO: Need to have parameter to specify all participants in the chat
+
 @external(javascript, "./messaging_ffi.mjs", "sendPrivateMessage")
 pub fn send_private_message(
-  sender_sk: BinaryKey(Private),
-  recipient_pk: String,
   message: String,
+  sender_private_key: BinaryKey(Private),
+  recipient_public_key: String,
   relays: array.Array(String),
 ) -> promise.Promise(Nil)
 
